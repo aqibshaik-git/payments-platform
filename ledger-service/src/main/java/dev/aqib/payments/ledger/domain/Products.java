@@ -1,5 +1,7 @@
 package dev.aqib.payments.ledger.domain;
 
+import java.math.BigDecimal;
+
 /**
  * The product catalogue. Each product is a combination of policies (see AccountTest for the exact numbers).
  *  - EASY_SAVER: 4.5% a year, no fees, no overdraft, max £5,000 per withdrawal
@@ -9,9 +11,26 @@ package dev.aqib.payments.ledger.domain;
 public final class Products {
     private Products() {}
 
-    public static Product easySaver() { throw new UnsupportedOperationException("TODO"); }
+    private static Money gbp(String amount) { return Money.of(amount, "GBP"); }
 
-    public static Product currentAccount() { throw new UnsupportedOperationException("TODO"); }
+    public static Product easySaver() {
+        return new Product("EASY_SAVER",
+                Policies.fixedRate(new BigDecimal("4.5")),
+                Policies.noFee(),
+                Policies.allOf(Policies.noOverdraft(), Policies.maxPerWithdrawal(gbp("5000.00"))));
+    }
 
-    public static Product premiumCurrent() { throw new UnsupportedOperationException("TODO"); }
+    public static Product currentAccount() {
+        return new Product("CURRENT",
+                Policies.noInterest("GBP"),
+                Policies.noFee(),
+                Policies.overdraftUpTo(gbp("500.00")));
+    }
+
+    public static Product premiumCurrent() {
+        return new Product("PREMIUM_CURRENT",
+                Policies.fixedRate(new BigDecimal("1")),
+                Policies.percentageFee(new BigDecimal("0.5"), gbp("1.00")),
+                Policies.overdraftUpTo(gbp("2000.00")));
+    }
 }
